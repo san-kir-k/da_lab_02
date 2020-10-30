@@ -33,6 +33,7 @@ namespace NRBTree {
             bool Remove(const char* key, TRBTreeNode* node);
             void LeftRotate(TRBTreeNode* node);
             void RightRotate(TRBTreeNode* node);
+            void Recolor(TRBTreeNode* node);
             void DeleteTree(TRBTreeNode* node);
 
         public:

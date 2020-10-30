@@ -1,4 +1,3 @@
-#include <string>
 #include <cstring>
 #include <iostream>
 
@@ -40,7 +39,7 @@ namespace NRBTree {
                 node->Left->Parent = node;
                 node->Left->Color = TColor::Red;
                 if (node->Color == TColor::Red) {
-                    // recolor
+                    Recolor(node->Left);
                 }
                 return true;
             } else {
@@ -52,7 +51,7 @@ namespace NRBTree {
                 node->Right->Parent = node;
                 node->Right->Color = TColor::Red;
                 if (node->Color == TColor::Red) {
-                    // recolor
+                    Recolor(node->Right);
                 }
                 return true;
             } else {
@@ -69,11 +68,97 @@ namespace NRBTree {
     }
 
     void TRBTree::LeftRotate(TRBTreeNode* node) {
-        // ...
+        TRBTreeNode* rightSon = node->Right;
+        node->Right = rightSon->Left;
+        if (rightSon->Left != NULL) {
+            rightSon->Left->Parent = node;
+        }
+        rightSon->Parent = node->Parent;
+        if (node->Parent == NULL) {
+            root = rightSon;
+        } else if (node == node->Parent->Left) {
+            node->Parent->Left = rightSon;
+        } else {
+            node->Parent->Right = rightSon;
+        }
+        rightSon->Left = node;
+        node->Parent = rightSon; 
+    }
+    void TRBTree::RightRotate(TRBTreeNode* node) {
+        TRBTreeNode* leftSon = node->Left;
+        node->Left = leftSon->Right;
+        if (leftSon->Right != NULL) {
+            leftSon->Right->Parent = node;
+        }
+        leftSon->Parent = node->Parent;
+        if (node->Parent == NULL) {
+            root = leftSon;
+        } else if (node == node->Parent->Right) {
+            node->Parent->Right = leftSon;
+        } else {
+            node->Parent->Left = leftSon;
+        }
+        leftSon->Right = node;
+        node->Parent = leftSon; 
     }
 
-    void TRBTree::RightRotate(TRBTreeNode* node) {
-        // ...
+    void TRBTree::Recolor(TRBTreeNode* node) {
+        TRBTreeNode* grandParent = node->Parent->Parent;
+        if (grandParent->Left == node->Parent) {
+            if (grandParent->Right->Color == TColor::Red) {
+                grandParent->Left->Color = TColor::Black;
+                grandParent->Right->Color = TColor::Black;
+                grandParent->Color = TColor::Red;
+                if (root == grandParent) {
+                    grandParent->Color = TColor::Black;
+                    return;
+                }
+                if (grandParent->Color == TColor::Red && grandParent->Parent->Color == TColor::Red) {
+                    Recolor(grandParent);
+                }
+                return;
+            } else if (grandParent->Right->Color == TColor::Black || grandParent->Right == NULL) {
+                if (node == node->Parent->Left) {
+                    grandParent->Color = TColor::Red;
+                    node->Parent->Color = TColor::Black;
+                    RightRotate(grandParent);
+                    return;
+                } else {
+                    LeftRotate(node->Parent);
+                    node->Color = TColor::Black;
+                    node->Parent->Color = TColor::Red;
+                    RightRotate(node->Parent);
+                    return;
+                }
+            }
+        } else {
+            if (grandParent->Left->Color == TColor::Red) {
+                grandParent->Right->Color = TColor::Black;
+                grandParent->Left->Color = TColor::Black;
+                grandParent->Color = TColor::Red;
+                if (root == grandParent) {
+                    grandParent->Color = TColor::Black;
+                    return;
+                }
+                if (grandParent->Color == TColor::Red && grandParent->Parent->Color == TColor::Red) {
+                    Recolor(grandParent);
+                }
+                return;
+            } else if (grandParent->Left->Color == TColor::Black || grandParent->Left == NULL) {
+                if (node == node->Parent->Right) {
+                    grandParent->Color = TColor::Red;
+                    node->Parent->Color = TColor::Black;
+                    LeftRotate(grandParent);
+                    return;
+                } else {
+                    RightRotate(node->Parent);
+                    node->Color = TColor::Black;
+                    node->Parent->Color = TColor::Red;
+                    LeftRotate(node->Parent);
+                    return;
+                }
+            }
+        }
     }
 
     void TRBTree::DeleteTree(TRBTreeNode* node) {
