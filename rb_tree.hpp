@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pair.hpp"
+#include <iostream>
 
 namespace NRBTree {
     using TUll = unsigned long long;
@@ -18,16 +19,15 @@ namespace NRBTree {
         TRBTreeNode* Right;
         NPair::TPair<char*, TUll> Data;
 
-        TRBTreeNode(): Color(TColor::Black), Parent(NULL), Left(NULL), Right(NULL), Data() {};
-        TRBTreeNode(NPair::TPair<char*, TUll> p):
-        Color(TColor::Black), Parent(NULL), Left(NULL), Right(NULL), Data(p) {};
-        ~TRBTreeNode() = default;
+        TRBTreeNode();
+        TRBTreeNode(const NPair::TPair<char*, TUll>& p);
+        ~TRBTreeNode();
     };
 
     class TRBTree {
         private:
-            TRBTreeNode* root = NULL;
-
+            TRBTreeNode* root;
+            
             bool Search(char* key, NPair::TPair<char*, TUll>& res, TRBTreeNode* node);
             bool Insert(const NPair::TPair<char*, TUll>& data, TRBTreeNode* node);
             bool Remove(const char* key, TRBTreeNode* node);
@@ -37,7 +37,7 @@ namespace NRBTree {
             void DeleteTree(TRBTreeNode* node);
 
         public:
-            TRBTree() {};
+            TRBTree(): root(NULL) {};
             bool Search(char* key, NPair::TPair<char*, TUll>& res);
             bool Insert(const NPair::TPair<char*, TUll>& data);
             bool Remove(const char* key);

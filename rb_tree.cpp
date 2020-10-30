@@ -5,6 +5,23 @@
 #include "pair.hpp"
 
 namespace NRBTree {
+    TRBTreeNode::TRBTreeNode(): Color(TColor::Black), Parent(NULL), Left(NULL), Right(NULL) {
+        char* key = new char[MAX_LEN + 1];
+        Data = {key, 0};
+    }
+    TRBTreeNode::TRBTreeNode(const NPair::TPair<char*, TUll>& p):
+    Color(TColor::Black), Parent(NULL), Left(NULL), Right(NULL) {
+        char* key = new char[MAX_LEN + 1];
+        TUll val = p.Second;
+        for (int i = 0; i < MAX_LEN + 1; ++i) {
+            key[i] = p.First[i];
+        } 
+        Data = {key, val};
+    }
+    TRBTreeNode::~TRBTreeNode() {
+        delete[] Data.First;
+    }
+
     bool TRBTree::Search(char* key, NPair::TPair<char*, TUll>& res) {
         return Search(key, res, root);
     }
@@ -105,7 +122,7 @@ namespace NRBTree {
     void TRBTree::Recolor(TRBTreeNode* node) {
         TRBTreeNode* grandParent = node->Parent->Parent;
         if (grandParent->Left == node->Parent) {
-            if (grandParent->Right->Color == TColor::Red) {
+            if (grandParent->Right != NULL && grandParent->Right->Color == TColor::Red) {
                 grandParent->Left->Color = TColor::Black;
                 grandParent->Right->Color = TColor::Black;
                 grandParent->Color = TColor::Red;
@@ -113,11 +130,12 @@ namespace NRBTree {
                     grandParent->Color = TColor::Black;
                     return;
                 }
-                if (grandParent->Color == TColor::Red && grandParent->Parent->Color == TColor::Red) {
+                if (grandParent->Parent != NULL && grandParent->Color == TColor::Red && grandParent->Parent->Color == TColor::Red) {
                     Recolor(grandParent);
                 }
                 return;
-            } else if (grandParent->Right->Color == TColor::Black || grandParent->Right == NULL) {
+            } else if (grandParent->Right == NULL || 
+            (grandParent->Right != NULL && grandParent->Right->Color == TColor::Black)) {
                 if (node == node->Parent->Left) {
                     grandParent->Color = TColor::Red;
                     node->Parent->Color = TColor::Black;
@@ -132,7 +150,7 @@ namespace NRBTree {
                 }
             }
         } else {
-            if (grandParent->Left->Color == TColor::Red) {
+            if (grandParent->Left != NULL && grandParent->Left->Color == TColor::Red) {
                 grandParent->Right->Color = TColor::Black;
                 grandParent->Left->Color = TColor::Black;
                 grandParent->Color = TColor::Red;
@@ -140,11 +158,12 @@ namespace NRBTree {
                     grandParent->Color = TColor::Black;
                     return;
                 }
-                if (grandParent->Color == TColor::Red && grandParent->Parent->Color == TColor::Red) {
+                if (grandParent->Parent != NULL && grandParent->Color == TColor::Red && grandParent->Parent->Color == TColor::Red) {
                     Recolor(grandParent);
                 }
                 return;
-            } else if (grandParent->Left->Color == TColor::Black || grandParent->Left == NULL) {
+            } else if (grandParent->Left == NULL || 
+            (grandParent->Left != NULL && grandParent->Left->Color == TColor::Black )) {
                 if (node == node->Parent->Right) {
                     grandParent->Color = TColor::Red;
                     node->Parent->Color = TColor::Black;
