@@ -11,7 +11,7 @@ namespace NRBTree {
     bool TRBTree::Search(char* key, NPair::TPair<char*, TUll>& res, TRBTreeNode* node) {
         if (node == NULL) {
             return false;
-        } else if (key == node->Data.First) {
+        } else if (strcmp(key, node->Data.First) == 0) {
             res = node->Data;
             return true;
         } else {
@@ -30,10 +30,10 @@ namespace NRBTree {
         }
     }
     bool TRBTree::Insert(const NPair::TPair<char*, TUll>& data, TRBTreeNode* node) {
-        std::string key = data.First;
-        if (node->Data.First == key) {
+        const char* key = data.First;
+        if (strcmp(key, node->Data.First) == 0) {
             return false;
-        } else if ((key.compare(node->Data.First) < 0)) {
+        } else if (strcmp(key, node->Data.First) < 0) {
             if (node->Left == NULL) {
                 node->Left = new TRBTreeNode(data);
                 node->Left->Parent = node;
