@@ -7,13 +7,11 @@
 #include "pair.hpp"
 #include "rb_tree.hpp"
 
-/*УДАЛИТЬ*/#include <vector>
-
 using TUll = unsigned long long;
 const TUll MAX_LEN = 256;
 
 void StrToLower(char* str) {
-    for (int i = 0; i < 256; ++i) {
+    for (int i = 0; i < MAX_LEN; ++i) {
         str[i] = std::tolower(str[i]);
     }
 }
@@ -41,16 +39,8 @@ void RequestHandler() {
             std::cin >> req;
             std::cin.getline(path, MAX_LEN, '\n');
             if (strcmp(req,"Save") == 0) {
-                std::FILE* f = std::fopen(path, "w");
-                if (f == NULL) {
-                    std::cout << "ERROR: " << std::strerror(errno) << "\n";
-                }
                 // save in file
             }  else {
-                std::FILE* f = std::fopen(path, "r");
-                if (f == NULL) {
-                    std::cout << "ERROR: " << std::strerror(errno) << "\n";
-                }
                 // load from file
             }   
         } else {

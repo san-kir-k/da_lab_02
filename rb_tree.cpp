@@ -1,8 +1,4 @@
-#include <cstring>
-#include <iostream>
-
 #include "rb_tree.hpp"
-#include "pair.hpp"
 
 namespace NRBTree {
     TRBTreeNode::TRBTreeNode(): Color(TColor::Black), Parent(NULL), Left(NULL), Right(NULL) {
@@ -22,8 +18,12 @@ namespace NRBTree {
         delete[] Data.First;
     }
 
+    TRBTreeNode* TRBTree::GetRoot() const {
+        return Root;
+    }
+
     bool TRBTree::Search(char* key, NPair::TPair<char*, TUll>& res) {
-        return Search(key, res, root);
+        return Search(key, res, Root);
     }
     bool TRBTree::Search(char* key, NPair::TPair<char*, TUll>& res, TRBTreeNode* node) {
         if (node == NULL) {
@@ -38,12 +38,12 @@ namespace NRBTree {
     }
 
     bool TRBTree::Insert(const NPair::TPair<char*, TUll>& data) {
-        if (root == NULL) {
-            root = new TRBTreeNode(data);
-            root->Color=TColor::Black;
+        if (Root == NULL) {
+            Root = new TRBTreeNode(data);
+            Root->Color=TColor::Black;
             return true;
         } else {
-            return Insert(data, root);
+            return Insert(data, Root);
         }
     }
     bool TRBTree::Insert(const NPair::TPair<char*, TUll>& data, TRBTreeNode* node) {
@@ -78,7 +78,7 @@ namespace NRBTree {
     }
 
     bool TRBTree::Remove(const char* key) {
-        return Remove(key, root);
+        return Remove(key, Root);
     }
     bool TRBTree::Remove(const char* key, TRBTreeNode* node) {
         // ...
@@ -92,7 +92,7 @@ namespace NRBTree {
         }
         rightSon->Parent = node->Parent;
         if (node->Parent == NULL) {
-            root = rightSon;
+            Root = rightSon;
         } else if (node == node->Parent->Left) {
             node->Parent->Left = rightSon;
         } else {
@@ -109,7 +109,7 @@ namespace NRBTree {
         }
         leftSon->Parent = node->Parent;
         if (node->Parent == NULL) {
-            root = leftSon;
+            Root = leftSon;
         } else if (node == node->Parent->Right) {
             node->Parent->Right = leftSon;
         } else {
@@ -126,7 +126,7 @@ namespace NRBTree {
                 grandParent->Left->Color = TColor::Black;
                 grandParent->Right->Color = TColor::Black;
                 grandParent->Color = TColor::Red;
-                if (root == grandParent) {
+                if (Root == grandParent) {
                     grandParent->Color = TColor::Black;
                     return;
                 }
@@ -154,7 +154,7 @@ namespace NRBTree {
                 grandParent->Right->Color = TColor::Black;
                 grandParent->Left->Color = TColor::Black;
                 grandParent->Color = TColor::Red;
-                if (root == grandParent) {
+                if (Root == grandParent) {
                     grandParent->Color = TColor::Black;
                     return;
                 }
@@ -191,6 +191,66 @@ namespace NRBTree {
     }
 
     TRBTree::~TRBTree() {
-        DeleteTree(root);
+        DeleteTree(Root);
+    }
+
+    void TRBTree::RecursiveLoad(std::ifstream& fs, NRBTree::TRBTreeNode*& node) {
+        NPair::TPair<char*, TUll> data;
+        char color;
+        char key[MAX_LEN + 1];
+        fs.read(key, sizeof(char) * MAX_LEN);
+        key[MAX_LEN] = '\0';
+        data.First = key;
+        fs.read((char*)&data.Second, sizeof(TUll));
+        fs.read((char*)&color, sizeof(char));    
+        if (data.First[0] == '#') {
+            return; 
+        }
+        node = new TRBTreeNode(data);
+        if (color == 'r') {
+            node->Color = TColor::Red;
+        } else {
+            node->Color = TColor::Black;
+        }
+        RecursiveLoad(fs, node->Left); 
+        RecursiveLoad(fs, node->Right); 
+        if (node->Left != NULL) {
+            node->Left->Parent = node;
+        }
+        if (node->Right != NULL) {
+            node->Right->Parent = node;
+        }
+    }
+
+    void TRBTree::Load(const char* path, NRBTree::TRBTree& t) {
+        std::ifstream fs;
+        fs.open(path, std::ios::binary);
+        RecursiveLoad(fs, t.Root);
+        fs.close();
+    }
+
+    void TRBTree::RecursiveSave(std::ofstream& fs, NRBTree::TRBTreeNode* t) {
+        if (t == NULL) {
+            char key[MAX_LEN + 1] = "#";
+            TUll val = 0;
+            char color = 'b';
+            fs.write(key, sizeof(char) * MAX_LEN);
+            fs.write((char*)&val, sizeof(TUll));
+            fs.write((char*)&color, sizeof(char));      
+            return;
+        }
+        char color = t->Color == TColor::Black ? 'b' : 'r';
+        fs.write(t->Data.First, sizeof(char) * MAX_LEN);
+        fs.write((char*)&(t->Data.Second), sizeof(TUll));
+        fs.write((char*)&color, sizeof(char));    
+        RecursiveSave(fs, t->Left);
+        RecursiveSave(fs, t->Right);
+    }
+
+    void TRBTree::Save(const char* path, NRBTree::TRBTree& t) {
+        std::ofstream fs;
+        fs.open(path, std::ios::binary);
+        RecursiveSave(fs, t.Root);
+        fs.close();
     }
 }
