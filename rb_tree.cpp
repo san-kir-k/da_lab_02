@@ -1,31 +1,14 @@
 #include "rb_tree.hpp"
 
 namespace NRBTree {
-    TRBTreeNode::TRBTreeNode(): Color(TColor::Black), Parent(NULL), Left(NULL), Right(NULL) {
-        char* key = new char[MAX_LEN + 1];
-        Data = {key, 0};
-    }
-    TRBTreeNode::TRBTreeNode(const NPair::TPair<char*, TUll>& p):
-    Color(TColor::Black), Parent(NULL), Left(NULL), Right(NULL) {
-        char* key = new char[MAX_LEN + 1];
-        TUll val = p.Second;
-        for (int i = 0; i < MAX_LEN + 1; ++i) {
-            key[i] = p.First[i];
-        } 
-        Data = {key, val};
-    }
-    TRBTreeNode::~TRBTreeNode() {
-        delete[] Data.First;
-    }
-
     TRBTreeNode* TRBTree::GetRoot() const {
         return Root;
     }
 
-    bool TRBTree::Search(char* key, NPair::TPair<char*, TUll>& res) {
+    bool TRBTree::Search(char key[MAX_LEN + 1], NPair::TPair& res) {
         return Search(key, res, Root);
     }
-    bool TRBTree::Search(char* key, NPair::TPair<char*, TUll>& res, TRBTreeNode* node) {
+    bool TRBTree::Search(char key[MAX_LEN + 1], NPair::TPair& res, TRBTreeNode* node) {
         if (node == NULL) {
             return false;
         } else if (strcmp(key, node->Data.First) == 0) {
@@ -37,7 +20,7 @@ namespace NRBTree {
         }
     }
 
-    bool TRBTree::Insert(const NPair::TPair<char*, TUll>& data) {
+    bool TRBTree::Insert(const NPair::TPair& data) {
         if (Root == NULL) {
             Root = new TRBTreeNode(data);
             Root->Color=TColor::Black;
@@ -46,7 +29,7 @@ namespace NRBTree {
             return Insert(data, Root);
         }
     }
-    bool TRBTree::Insert(const NPair::TPair<char*, TUll>& data, TRBTreeNode* node) {
+    bool TRBTree::Insert(const NPair::TPair& data, TRBTreeNode* node) {
         const char* key = data.First;
         if (strcmp(key, node->Data.First) == 0) {
             return false;
@@ -77,7 +60,7 @@ namespace NRBTree {
         }
     }
 
-    bool TRBTree::Remove(const char* key) {
+    bool TRBTree::Remove(const char key[MAX_LEN + 1]) {
         TRBTreeNode* node = Root;
         while (node != NULL && strcmp(key, node->Data.First) != 0) {
             TRBTreeNode* to = (strcmp(key, node->Data.First) < 0) ? node->Left : node->Right;
@@ -110,6 +93,7 @@ namespace NRBTree {
             if (toDelete->Right == NULL) {
                 delRep = true;
                 toDelete->Right = new TRBTreeNode;
+                toDelete->Right->Parent = toDelete;
                 toDelete->Right->Color = TColor::Black;
             }
             toReplace = toDelete->Right;
@@ -134,11 +118,9 @@ namespace NRBTree {
             } else {
                 toReplace->Parent->Right = NULL;
             }
-            // delete[] toReplace->Data.First;
             delete toReplace;
         }
-        // delete[] toDelete->Data.First;
-        delete toDelete;
+        delete node;
     }
 
     void TRBTree::RemoveFixUp(TRBTreeNode* node) {
@@ -311,7 +293,6 @@ namespace NRBTree {
         } else {
             DeleteTree(node->Left);
             DeleteTree(node->Right);
-            // delete[] node->Data.First;
             delete node;
         }
     }
@@ -321,12 +302,10 @@ namespace NRBTree {
     }
 
     void TRBTree::RecursiveLoad(std::ifstream& fs, NRBTree::TRBTreeNode*& node) {
-        NPair::TPair<char*, TUll> data;
+        NPair::TPair data;
         char color;
-        char key[MAX_LEN + 1];
-        fs.read(key, sizeof(char) * MAX_LEN);
-        key[MAX_LEN] = '\0';
-        data.First = key;
+        fs.read(data.First, sizeof(char) * MAX_LEN);
+        data.First[MAX_LEN] = '\0';
         fs.read((char*)&data.Second, sizeof(TUll));
         fs.read((char*)&color, sizeof(char));    
         if (data.First[0] == '#') {

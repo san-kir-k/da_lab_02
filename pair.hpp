@@ -1,28 +1,16 @@
 #pragma once
 
 namespace NPair {
-    template <class F, class S>
+    using TUll = unsigned long long;
+    const TUll MAX_LEN = 256;
     struct TPair {
-        F First;
-        S Second;
+        char First[MAX_LEN + 1];
+        TUll Second;
 
-        TPair(): First(), Second() {};
-        TPair(F first, S second): First(first), Second(second) {};
-        TPair(const TPair<F, S>& p); // ???? <F, S>
-        TPair& operator=(const TPair<F, S>& p);
+        TPair() = default;
+        TPair(char* first, TUll second);
+        TPair(const TPair& p); 
+        TPair& operator=(const TPair& p);
         ~TPair() = default;
     };
-
-    template <class F, class S>
-    TPair<F, S>::TPair(const TPair<F, S>& p) {
-        First = p.First;
-        Second = p.Second;
-    }
-
-    template <class F, class S>
-    TPair<F, S>& TPair<F, S>::operator=(const TPair<F, S>& p) {
-        First = p.First;
-        Second = p.Second;
-        return *this;
-    }
 }
