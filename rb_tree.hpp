@@ -34,7 +34,9 @@ namespace NRBTree {
             
             bool Search(char* key, NPair::TPair<char*, TUll>& res, TRBTreeNode* node);
             bool Insert(const NPair::TPair<char*, TUll>& data, TRBTreeNode* node);
-            bool Remove(const char* key, TRBTreeNode* node);
+            void Remove(TRBTreeNode* node);
+            void Transplant(TRBTreeNode* u, TRBTreeNode* v);
+            void RemoveFixUp(TRBTreeNode* node);
             void LeftRotate(TRBTreeNode* node);
             void RightRotate(TRBTreeNode* node);
             void Recolor(TRBTreeNode* node);

@@ -78,10 +78,135 @@ namespace NRBTree {
     }
 
     bool TRBTree::Remove(const char* key) {
-        return Remove(key, Root);
+        TRBTreeNode* node = Root;
+        while (node != NULL && strcmp(key, node->Data.First) != 0) {
+            TRBTreeNode* to = (strcmp(key, node->Data.First) < 0) ? node->Left : node->Right;
+            node = to;
+        }
+        if (node == NULL) {
+            return false;
+        }
+        Remove(node);
+        return true;
     }
-    bool TRBTree::Remove(const char* key, TRBTreeNode* node) {
-        // ...
+    void TRBTree::Remove(TRBTreeNode* node) {
+        bool delRep = false;
+        TRBTreeNode* toDelete = node;
+        TColor toDeleteColor = toDelete->Color;
+        TRBTreeNode* toReplace;
+        if (node->Left == NULL) {
+            toReplace = node->Right;
+            Transplant(node, node->Right);
+        } else if (node->Right == NULL) {
+            toReplace = node->Left;
+            Transplant(node, node->Left);
+        } else {
+            TRBTreeNode* minInRight = node->Right;
+            while(minInRight->Left != NULL) {
+                minInRight = minInRight->Left;
+            }
+            toDelete = minInRight;
+            toDeleteColor = toDelete->Color;
+            if (toDelete->Right == NULL) {
+                delRep = true;
+                toDelete->Right = new TRBTreeNode;
+                toDelete->Right->Color = TColor::Black;
+            }
+            toReplace = toDelete->Right;
+            if (toDelete->Parent == node) {
+                toReplace->Parent = toDelete;
+            } else {
+                Transplant(toDelete, toDelete->Right);
+                toDelete->Right = node->Right;
+                toDelete->Right->Parent = toDelete;
+            }
+            Transplant(node, toDelete);
+            toDelete->Left = node->Left;
+            toDelete->Left->Parent = toDelete;
+            toDelete->Color = node->Color;
+        }
+        if (toDeleteColor == TColor::Black) {
+            RemoveFixUp(toReplace);
+        }
+        if (delRep) {
+            if (toReplace == toReplace->Parent->Left) {
+                toReplace->Parent->Left = NULL;
+            } else {
+                toReplace->Parent->Right = NULL;
+            }
+            // delete[] toReplace->Data.First;
+            delete toReplace;
+        }
+        // delete[] toDelete->Data.First;
+        delete toDelete;
+    }
+
+    void TRBTree::RemoveFixUp(TRBTreeNode* node) {
+        while (node != NULL && node->Color == TColor::Black) {
+            if (node == node->Parent->Left) {
+                TRBTreeNode* brother = node->Parent->Right;
+                if (brother->Color == TColor::Red) {
+                    brother->Color = TColor::Black;
+                    node->Parent->Color = TColor::Red;
+                    LeftRotate(node->Parent);
+                    brother = node->Parent->Right;
+                }
+                if (brother->Left->Color == TColor::Black && brother->Right->Color == TColor::Black) {
+                    brother->Color = TColor::Red;
+                    node = node->Parent;
+                } else {
+                    if (brother->Right->Color == TColor::Black) {
+                        brother->Left->Color = TColor::Black;
+                        brother->Color = TColor::Red;
+                        RightRotate(brother);
+                        brother = node->Parent->Right;
+                    }
+                    brother->Color = node->Parent->Color;
+                    node->Parent->Color = TColor::Black;
+                    brother->Right->Color = TColor::Black;
+                    LeftRotate(node->Parent);
+                    break;
+                }
+            } else {
+                TRBTreeNode* brother = node->Parent->Left;
+                if (brother->Color == TColor::Red) {
+                    brother->Color = TColor::Black;
+                    node->Parent->Color = TColor::Red;
+                    RightRotate(node->Parent);
+                    brother = node->Parent->Left;
+                }
+                if (brother->Right->Color == TColor::Black && brother->Left->Color == TColor::Black) {
+                    brother->Color = TColor::Red;
+                    node = node->Parent;
+                } else {
+                    if (brother->Left->Color == TColor::Black) {
+                        brother->Right->Color = TColor::Black;
+                        brother->Color = TColor::Red;
+                        LeftRotate(brother);
+                        brother = node->Parent->Left;
+                    }
+                    brother->Color = node->Parent->Color;
+                    node->Parent->Color = TColor::Black;
+                    brother->Left->Color = TColor::Black;
+                    RightRotate(node->Parent);
+                    break;
+                }
+            }
+        }
+        node->Color = TColor::Black;
+    }
+
+    void TRBTree::Transplant(TRBTreeNode* u, TRBTreeNode* v) {
+        if (u->Parent == NULL) {
+            Root = v;
+        } else if (u == u->Parent->Left) {
+            u->Parent->Left = v;
+        } else {
+            u->Parent->Right = v;
+        }
+        if (v != NULL) {
+            v->Parent = u->Parent;
+        }
     }
 
     void TRBTree::LeftRotate(TRBTreeNode* node) {
@@ -186,7 +311,8 @@ namespace NRBTree {
         } else {
             DeleteTree(node->Left);
             DeleteTree(node->Right);
-            Remove(node->Data.First, node);
+            // delete[] node->Data.First;
+            delete node;
         }
     }
 
