@@ -4,6 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <cerrno>
+#include <cctype>
 
 #include "pair.hpp"
 
@@ -41,8 +42,8 @@ namespace NRBTree {
             void RightRotate(TRBTreeNode* node);
             void Recolor(TRBTreeNode* node);
             void DeleteTree(TRBTreeNode* node);
-            static void RecursiveLoad(std::ifstream& fs, NRBTree::TRBTreeNode*& node);
-            static void RecursiveSave(std::ofstream& fs, NRBTree::TRBTreeNode* node);
+            static void RecursiveLoad(std::ifstream& fs, NRBTree::TRBTreeNode*& node, bool& isOK);
+            static void RecursiveSave(std::ofstream& fs, NRBTree::TRBTreeNode* node, bool& isOK);
 
         public:
             TRBTree(): Root(NULL) {};
@@ -50,8 +51,8 @@ namespace NRBTree {
             bool Search(char key[MAX_LEN + 1], NPair::TPair& res);
             bool Insert(const NPair::TPair& data);
             bool Remove(const char key[MAX_LEN + 1]);
-            static void Load(const char path[MAX_LEN + 1], NRBTree::TRBTree& t);
-            static void Save(const char path[MAX_LEN + 1], NRBTree::TRBTree& t);
+            static void Load(const char path[MAX_LEN + 1], NRBTree::TRBTree& t, bool& isOK);
+            static void Save(const char path[MAX_LEN + 1], NRBTree::TRBTree& t, bool& isOK);
             ~TRBTree();
     };
 }

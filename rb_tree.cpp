@@ -312,29 +312,47 @@ namespace NRBTree {
 
     TRBTree::~TRBTree() {
         DeleteTree(Root);
+        Root = NULL;
     }
 
-    void TRBTree::RecursiveLoad(std::ifstream& fs, NRBTree::TRBTreeNode*& node) {
+    void TRBTree::RecursiveLoad(std::ifstream& fs, NRBTree::TRBTreeNode*& node, bool& isOK) {
+        if (!isOK) {
+            return;
+        }
         NPair::TPair data;
-        char checkSym;
-        fs.read(&checkSym, sizeof(char));
-        if (checkSym == '#') {
+        short len = 0;
+        fs.read((char*)&len, sizeof(short));
+        if (len == -1) {
+            return;
+        } else if (len != -1 && (len <= 0 || len > MAX_LEN)) {
+            std::cout << "ERROR: Wrong file format\n";
+            isOK = false;
             return;
         }
         char color;
-        fs.read(&(data.First[1]), sizeof(char) * (MAX_LEN - 1));
-        data.First[MAX_LEN] = '\0';
+        for (int i = 0; i < len; ++i) {
+            fs.read(&(data.First[i]), sizeof(char));
+            if (isalpha(data.First[i]) == 0) {
+                std::cout << "ERROR: Wrong file format\n";
+                isOK = false;
+                return;
+            }
+        }
+        data.First[len] = '\0';
         fs.read((char*)&data.Second, sizeof(TUll));
         fs.read((char*)&color, sizeof(char));    
-        data.First[0] = checkSym;
         node = new TRBTreeNode(data);
         if (color == 'r') {
             node->Color = TColor::Red;
-        } else {
+        } else if (color == 'b') {
             node->Color = TColor::Black;
+        } else {
+            std::cout << "ERROR: Wrong file format\n";
+            isOK = false;
+            return;
         }
-        RecursiveLoad(fs, node->Left); 
-        RecursiveLoad(fs, node->Right); 
+        RecursiveLoad(fs, node->Left, isOK); 
+        RecursiveLoad(fs, node->Right, isOK); 
         if (node->Left != NULL) {
             node->Left->Parent = node;
         }
@@ -343,31 +361,36 @@ namespace NRBTree {
         }
     }
 
-    void TRBTree::Load(const char* path, NRBTree::TRBTree& t) {
+    void TRBTree::Load(const char* path, NRBTree::TRBTree& t, bool& isOK) {
         std::ifstream fs;
         fs.open(path, std::ios::binary);
-        RecursiveLoad(fs, t.Root);
+        RecursiveLoad(fs, t.Root, isOK);
         fs.close();
     }
 
-    void TRBTree::RecursiveSave(std::ofstream& fs, NRBTree::TRBTreeNode* t) {
+    void TRBTree::RecursiveSave(std::ofstream& fs, NRBTree::TRBTreeNode* t, bool& isOK) {
+        short len = 0;
         if (t == NULL) {
-            char key = '#';
-            fs.write(&key, sizeof(char));    
+            len = -1;
+            fs.write((char*)&len, sizeof(short));    
             return;
         }
         char color = t->Color == TColor::Black ? 'b' : 'r';
-        fs.write(t->Data.First, sizeof(char) * MAX_LEN);
+        for (int i = 0; i < MAX_LEN && t->Data.First[i] != '\0' && isalpha(t->Data.First[i]) != 0; ++i) {
+            len++;
+        }
+        fs.write((char*)&len, sizeof(short));
+        fs.write(t->Data.First, sizeof(char) * len);
         fs.write((char*)&(t->Data.Second), sizeof(TUll));
         fs.write((char*)&color, sizeof(char));    
-        RecursiveSave(fs, t->Left);
-        RecursiveSave(fs, t->Right);
+        RecursiveSave(fs, t->Left, isOK);
+        RecursiveSave(fs, t->Right, isOK);
     }
 
-    void TRBTree::Save(const char* path, NRBTree::TRBTree& t) {
+    void TRBTree::Save(const char* path, NRBTree::TRBTree& t, bool& isOK) {
         std::ofstream fs;
         fs.open(path, std::ios::binary);
-        RecursiveSave(fs, t.Root);
+        RecursiveSave(fs, t.Root, isOK);
         fs.close();
     }
 
