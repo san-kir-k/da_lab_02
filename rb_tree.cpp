@@ -72,127 +72,137 @@ namespace NRBTree {
         Remove(node);
         return true;
     }
-    void TRBTree::Remove(TRBTreeNode* node) {
-        bool delRep = false;
-        TRBTreeNode* toDelete = node;
-        TColor toDeleteColor = toDelete->Color;
-        TRBTreeNode* toReplace;
-        if (node->Left == NULL) {
-            toReplace = node->Right;
-            Transplant(node, node->Right);
-        } else if (node->Right == NULL) {
-            toReplace = node->Left;
-            Transplant(node, node->Left);
-        } else {
-            TRBTreeNode* minInRight = node->Right;
-            while(minInRight->Left != NULL) {
-                minInRight = minInRight->Left;
-            }
-            toDelete = minInRight;
-            toDeleteColor = toDelete->Color;
-            if (toDelete->Right == NULL) {
-                delRep = true;
-                toDelete->Right = new TRBTreeNode;
-                toDelete->Right->Parent = toDelete;
-                toDelete->Right->Color = TColor::Black;
-            }
-            toReplace = toDelete->Right;
-            if (toDelete->Parent == node) {
-                toReplace->Parent = toDelete;
-            } else {
-                Transplant(toDelete, toDelete->Right);
-                toDelete->Right = node->Right;
-                toDelete->Right->Parent = toDelete;
-            }
-            Transplant(node, toDelete);
-            toDelete->Left = node->Left;
-            toDelete->Left->Parent = toDelete;
-            toDelete->Color = node->Color;
-        }
-        if (toDeleteColor == TColor::Black) {
-            RemoveFixUp(toReplace);
-        }
-        if (delRep) {
-            if (toReplace == toReplace->Parent->Left) {
-                toReplace->Parent->Left = NULL;
-            } else {
-                toReplace->Parent->Right = NULL;
-            }
-            delete toReplace;
-        }
-        delete node;
-    }
+    // void TRBTree::Remove(TRBTreeNode* node) {
+    //     bool delRep = false;
+    //     TRBTreeNode* toDelete = node;
+    //     TColor toDeleteColor = toDelete->Color;
+    //     TRBTreeNode* toReplace;
+    //     if (node->Left == NULL) {
+    //         if (node->Right == NULL) {
+    //             delRep = true;
+    //             node->Right = new TRBTreeNode;
+    //             node->Right->Parent = node;
+    //             node->Right->Color = TColor::Black;
+    //         }
+    //         toReplace = node->Right;
+    //         Transplant(node, node->Right);
+    //     } else if (node->Right == NULL) {
+    //         toReplace = node->Left;
+    //         Transplant(node, node->Left);
+    //     } else {
+    //         TRBTreeNode* minInRight = node->Right;
+    //         while(minInRight->Left != NULL) {
+    //             minInRight = minInRight->Left;
+    //         }
+    //         toDelete = minInRight;
+    //         toDeleteColor = toDelete->Color;
+    //         if (toDelete->Right == NULL) {
+    //             delRep = true;
+    //             toDelete->Right = new TRBTreeNode;
+    //             toDelete->Right->Parent = toDelete;
+    //             toDelete->Right->Color = TColor::Black;
+    //         }
+    //         toReplace = toDelete->Right;
+    //         if (toDelete->Parent == node) {
+    //             toReplace->Parent = toDelete;
+    //         } else {
+    //             Transplant(toDelete, toDelete->Right);
+    //             toDelete->Right = node->Right;
+    //             toDelete->Right->Parent = toDelete;
+    //         }
+    //         Transplant(node, toDelete);
+    //         toDelete->Left = node->Left;
+    //         toDelete->Left->Parent = toDelete;
+    //         toDelete->Color = node->Color;
+    //     }
+    //     if (toDeleteColor == TColor::Black) {
+    //         RemoveFixUp(toReplace);
+    //     }
+    //     if (delRep) {
+    //         if (toReplace->Parent != NULL && toReplace == toReplace->Parent->Left) {
+    //             toReplace->Parent->Left = NULL;
+    //         } else if (toReplace->Parent != NULL && toReplace == toReplace->Parent->Right) {
+    //             toReplace->Parent->Right = NULL;
+    //         }
+    //         delete toReplace;
+    //     }
+    //     delete node;
+    // }
 
-    void TRBTree::RemoveFixUp(TRBTreeNode* node) {
-        while (node != NULL && node->Color == TColor::Black) {
-            if (node == node->Parent->Left) {
-                TRBTreeNode* brother = node->Parent->Right;
-                if (brother->Color == TColor::Red) {
-                    brother->Color = TColor::Black;
-                    node->Parent->Color = TColor::Red;
-                    LeftRotate(node->Parent);
-                    brother = node->Parent->Right;
-                }
-                if (brother->Left->Color == TColor::Black && brother->Right->Color == TColor::Black) {
-                    brother->Color = TColor::Red;
-                    node = node->Parent;
-                } else {
-                    if (brother->Right->Color == TColor::Black) {
-                        brother->Left->Color = TColor::Black;
-                        brother->Color = TColor::Red;
-                        RightRotate(brother);
-                        brother = node->Parent->Right;
-                    }
-                    brother->Color = node->Parent->Color;
-                    node->Parent->Color = TColor::Black;
-                    brother->Right->Color = TColor::Black;
-                    LeftRotate(node->Parent);
-                    break;
-                }
-            } else {
-                TRBTreeNode* brother = node->Parent->Left;
-                if (brother->Color == TColor::Red) {
-                    brother->Color = TColor::Black;
-                    node->Parent->Color = TColor::Red;
-                    RightRotate(node->Parent);
-                    brother = node->Parent->Left;
-                }
-                if (brother->Right->Color == TColor::Black && brother->Left->Color == TColor::Black) {
-                    brother->Color = TColor::Red;
-                    node = node->Parent;
-                } else {
-                    if (brother->Left->Color == TColor::Black) {
-                        brother->Right->Color = TColor::Black;
-                        brother->Color = TColor::Red;
-                        LeftRotate(brother);
-                        brother = node->Parent->Left;
-                    }
-                    brother->Color = node->Parent->Color;
-                    node->Parent->Color = TColor::Black;
-                    brother->Left->Color = TColor::Black;
-                    RightRotate(node->Parent);
-                    break;
-                }
-            }
-        }
-        node->Color = TColor::Black;
-    }
+    // void TRBTree::RemoveFixUp(TRBTreeNode* node) {
+    //     while (node != NULL && node->Color == TColor::Black && node != Root) {
+    //         if (node == node->Parent->Left) {
+    //             TRBTreeNode* brother = node->Parent->Right;
+    //             if (brother->Color == TColor::Red) {
+    //                 brother->Color = TColor::Black;
+    //                 node->Parent->Color = TColor::Red;
+    //                 LeftRotate(node->Parent);
+    //                 brother = node->Parent->Right;
+    //             }
+    //             if (brother->Left->Color == TColor::Black && brother->Right->Color == TColor::Black) {
+    //                 brother->Color = TColor::Red;
+    //                 node = node->Parent;
+    //             } else {
+    //                 if (brother->Right->Color == TColor::Black) {
+    //                     brother->Left->Color = TColor::Black;
+    //                     brother->Color = TColor::Red;
+    //                     RightRotate(brother);
+    //                     brother = node->Parent->Right;
+    //                 }
+    //                 brother->Color = node->Parent->Color;
+    //                 node->Parent->Color = TColor::Black;
+    //                 brother->Right->Color = TColor::Black;
+    //                 LeftRotate(node->Parent);
+    //                 break;
+    //             }
+    //         } else {
+    //             TRBTreeNode* brother = node->Parent->Left;
+    //             if (brother->Color == TColor::Red) {
+    //                 brother->Color = TColor::Black;
+    //                 node->Parent->Color = TColor::Red;
+    //                 RightRotate(node->Parent);
+    //                 brother = node->Parent->Left;
+    //             }
+    //             if (brother->Right->Color == TColor::Black && brother->Left->Color == TColor::Black) {
+    //                 brother->Color = TColor::Red;
+    //                 node = node->Parent;
+    //             } else {
+    //                 if (brother->Left->Color == TColor::Black) {
+    //                     brother->Right->Color = TColor::Black;
+    //                     brother->Color = TColor::Red;
+    //                     LeftRotate(brother);
+    //                     brother = node->Parent->Left;
+    //                 }
+    //                 brother->Color = node->Parent->Color;
+    //                 node->Parent->Color = TColor::Black;
+    //                 brother->Left->Color = TColor::Black;
+    //                 RightRotate(node->Parent);
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     node->Color = TColor::Black;
+    // }
 
-    void TRBTree::Transplant(TRBTreeNode* u, TRBTreeNode* v) {
-        if (u->Parent == NULL) {
-            Root = v;
-        } else if (u == u->Parent->Left) {
-            u->Parent->Left = v;
-        } else {
-            u->Parent->Right = v;
-        }
-        if (v != NULL) {
-            v->Parent = u->Parent;
-        }
-    }
+    // void TRBTree::Transplant(TRBTreeNode* u, TRBTreeNode* v) {
+    //     if (u->Parent == NULL) {
+    //         Root = v;
+    //         Root->Parent = NULL;
+    //     } else if (u == u->Parent->Left) {
+    //         u->Parent->Left = v;
+    //     } else {
+    //         u->Parent->Right = v;
+    //     }
+    //     if (v != NULL && v != Root) {
+    //         v->Parent = u->Parent;
+    //     }
+    // }
 
     void TRBTree::LeftRotate(TRBTreeNode* node) {
         TRBTreeNode* rightSon = node->Right;
+        if (rightSon == NULL) {
+            return;
+        }
         node->Right = rightSon->Left;
         if (rightSon->Left != NULL) {
             rightSon->Left->Parent = node;
@@ -210,6 +220,9 @@ namespace NRBTree {
     }
     void TRBTree::RightRotate(TRBTreeNode* node) {
         TRBTreeNode* leftSon = node->Left;
+        if (leftSon == NULL) {
+            return;
+        }
         node->Left = leftSon->Right;
         if (leftSon->Right != NULL) {
             leftSon->Right->Parent = node;
@@ -303,14 +316,17 @@ namespace NRBTree {
 
     void TRBTree::RecursiveLoad(std::ifstream& fs, NRBTree::TRBTreeNode*& node) {
         NPair::TPair data;
+        char checkSym;
+        fs.read(&checkSym, sizeof(char));
+        if (checkSym == '#') {
+            return;
+        }
         char color;
-        fs.read(data.First, sizeof(char) * MAX_LEN);
+        fs.read(&(data.First[1]), sizeof(char) * (MAX_LEN - 1));
         data.First[MAX_LEN] = '\0';
         fs.read((char*)&data.Second, sizeof(TUll));
         fs.read((char*)&color, sizeof(char));    
-        if (data.First[0] == '#') {
-            return; 
-        }
+        data.First[0] = checkSym;
         node = new TRBTreeNode(data);
         if (color == 'r') {
             node->Color = TColor::Red;
@@ -336,12 +352,8 @@ namespace NRBTree {
 
     void TRBTree::RecursiveSave(std::ofstream& fs, NRBTree::TRBTreeNode* t) {
         if (t == NULL) {
-            char key[MAX_LEN + 1] = "#";
-            TUll val = 0;
-            char color = 'b';
-            fs.write(key, sizeof(char) * MAX_LEN);
-            fs.write((char*)&val, sizeof(TUll));
-            fs.write((char*)&color, sizeof(char));      
+            char key = '#';
+            fs.write(&key, sizeof(char));    
             return;
         }
         char color = t->Color == TColor::Black ? 'b' : 'r';
@@ -358,4 +370,153 @@ namespace NRBTree {
         RecursiveSave(fs, t.Root);
         fs.close();
     }
+
+    void TRBTree::Remove(TRBTreeNode* node) {
+        TRBTreeNode* toDelete = node;
+        TColor toDeleteColor = toDelete->Color;
+        TRBTreeNode* toReplace;
+        TRBTreeNode* toReplaceParent;
+        if (node->Left == NULL) {
+            toReplace = node->Right;
+            if (toReplace != NULL) {
+                toReplace->Parent = node->Parent;
+            } else {
+                toReplaceParent = node->Parent;
+                if (node == Root) {
+                    toReplaceParent = NULL;
+                    Root = NULL;
+                }
+            }
+            if (node->Parent != NULL) {
+                if (node->Parent->Left == node) {
+                    node->Parent->Left = toReplace;
+                } else {
+                    node->Parent->Right = toReplace;
+                }
+            } else {
+                Root = toReplace;
+            }
+        } else if (node->Right == NULL) {
+            toReplace = node->Left;
+            toReplace->Parent = node->Parent;
+            toReplaceParent = node->Parent;
+            if (node->Parent != NULL) {
+                if (node->Parent->Left == node) {
+                    node->Parent->Left = toReplace;
+                } else {
+                    node->Parent->Right = toReplace;
+                }
+            } else {
+                Root = toReplace;
+            }           
+        } else {
+            TRBTreeNode* minInRight = node->Right;
+            while(minInRight->Left != NULL) {
+                minInRight = minInRight->Left;
+            }
+            toDelete = minInRight;
+            toDeleteColor = toDelete->Color;
+            toReplace = toDelete->Right;
+            if (toDelete->Parent == node) {
+                if (toReplace != NULL) {
+                    toReplace->Parent = toDelete;
+                }
+                toReplaceParent = toDelete;
+            } else {
+                toDelete->Parent->Left = toReplace;
+                if (toReplace != NULL) {
+                    toReplace->Parent = toDelete->Parent;
+                }
+                toReplaceParent = toDelete->Parent;
+                toDelete->Right = node->Right;
+                toDelete->Right->Parent = toDelete;
+            }
+            if (node->Parent != NULL) {
+                if (node->Parent->Left == node) {
+                    node->Parent->Left = toDelete;
+                } else {
+                    node->Parent->Right = toDelete;
+                }
+            } else {
+                Root = toDelete;
+            }
+            toDelete->Parent = node->Parent;
+            toDelete->Left = node->Left;
+            toDelete->Left->Parent = toDelete;
+            toDelete->Color = node->Color;
+        }
+        if (toDeleteColor == TColor::Black) {
+            RemoveFixUp(toReplace, toReplaceParent);
+        }
+        delete node;
+    }
+
+     void TRBTree::RemoveFixUp(TRBTreeNode* node, TRBTreeNode* nodeParent) {
+        while ((node == NULL || node->Color == TColor::Black) && node != Root) {
+            TRBTreeNode* brother;
+            if (node == nodeParent->Left) {
+                brother = nodeParent->Right;
+                if (brother->Color == TColor::Red) {
+                    brother->Color = TColor::Black;
+                    nodeParent->Color = TColor::Red;
+                    LeftRotate(nodeParent);
+                    brother = nodeParent->Right;
+                }
+                if (brother->Color == TColor::Black) {
+                    if ((brother->Left == NULL || brother->Left->Color == TColor::Black)
+                    && (brother->Right == NULL || brother->Right->Color == TColor::Black)) {
+                        brother->Color = TColor::Red;
+                        node = nodeParent;
+                        if (node != NULL) {
+                            nodeParent = node->Parent;
+                        }
+                    } else {
+                        if (brother->Right == NULL || brother->Right->Color == TColor::Black) {
+                            brother->Left->Color = TColor::Black;
+                            brother->Color = TColor::Red;
+                            RightRotate(brother);
+                            brother = nodeParent->Right;
+                        }
+                        brother->Color = nodeParent->Color;
+                        nodeParent->Color = TColor::Black;
+                        brother->Right->Color = TColor::Black;
+                        LeftRotate(nodeParent);
+                        break;
+                    }
+                }
+            } else {
+                brother = nodeParent->Left;
+                if (brother->Color == TColor::Red) {
+                    brother->Color = TColor::Black;
+                    nodeParent->Color = TColor::Red;
+                    RightRotate(nodeParent);
+                    brother = nodeParent->Left;
+                }
+                if (brother->Color == TColor::Black) {
+                    if (brother->Right->Color == TColor::Black && brother->Left->Color == TColor::Black) {
+                        brother->Color = TColor::Red;
+                        node = nodeParent;
+                        if (node != NULL) {
+                            nodeParent = node->Parent;
+                        }
+                    } else {
+                        if (brother->Left->Color == TColor::Black) {
+                            brother->Right->Color = TColor::Black;
+                            brother->Color = TColor::Red;
+                            LeftRotate(brother);
+                            brother = nodeParent->Left;
+                        }
+                        brother->Color = nodeParent->Color;
+                        nodeParent->Color = TColor::Black;
+                        brother->Left->Color = TColor::Black;
+                        RightRotate(nodeParent);
+                        break;
+                    }
+                }
+            }
+        }
+        if (node != NULL) {
+            node->Color = TColor::Black;
+        }
+     }
 }

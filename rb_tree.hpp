@@ -36,7 +36,7 @@ namespace NRBTree {
             bool Insert(const NPair::TPair& data, TRBTreeNode* node);
             void Remove(TRBTreeNode* node);
             void Transplant(TRBTreeNode* u, TRBTreeNode* v);
-            void RemoveFixUp(TRBTreeNode* node);
+            void RemoveFixUp(TRBTreeNode* node, TRBTreeNode* nodeParent);
             void LeftRotate(TRBTreeNode* node);
             void RightRotate(TRBTreeNode* node);
             void Recolor(TRBTreeNode* node);
