@@ -96,13 +96,13 @@ int main() {
         }
     }
     std::cout << "==============START============\n";
-    std::cout << "INSERT std::map ms = " << mapTsInsert <<
-    "\nINSERT rb tree ms = " << rbTsInsert << "\n";
+    std::cout << "INSERT std::map time: " << mapTsInsert << "ms" <<
+    "\nINSERT rb tree time: " << rbTsInsert << "ms\n";
     std::cout << "===============================\n";
-    std::cout << "DELETE std::map ms = " << mapTsDelete <<
-    "\nDELETE rb tree ms = " << rbTsDelete << "\n";
+    std::cout << "DELETE std::map time: " << mapTsDelete << "ms" <<
+    "\nDELETE rb tree time: " << rbTsDelete << "ms\n";
     std::cout << "===============================\n";
-    std::cout << "SEARCH std::map ms = " << mapTsSearch <<
-    "\nSEARCH rb tree ms = " << rbTsSearch << "\n";
+    std::cout << "SEARCH std::map time: " << mapTsSearch << "ms" <<
+    "\nSEARCH rb tree time: " << rbTsSearch << "ms\n";
     std::cout << "==============END==============\n";
 }

@@ -65,7 +65,8 @@ function main() {
   local benchmark_bin=./benchmark
   for test_file in $( ls ${test_dir}/*.t ) ; do
     count_of_lines=$(wc -l < ${test_file})
-    log_info "Running ${test_file}, count of requests = ${count_of_lines}"
+    log_info "Running ${test_file}" 
+    echo "Count of requests is ${count_of_lines}"
     if ! ${benchmark_bin} < ${test_file}; then
       log_error "Failed to run ${benchmark_bin} for ${test_file}."
       return 1

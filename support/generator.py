@@ -16,9 +16,9 @@ if __name__ == "__main__":
 
             num_of_req = 0
             if enum == 0:
-                num_of_req = 10**2
+                num_of_req = 10
             elif enum == 1:
-                num_of_req = 10**4
+                num_of_req = 10**3
             else:
                 num_of_req = 10**5
             for _ in range(num_of_req):
