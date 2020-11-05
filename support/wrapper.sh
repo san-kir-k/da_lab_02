@@ -55,8 +55,24 @@ function main() {
   done
 
   rm ${tmp_output}
+  cd ${work_dir} && make clean && cd ${supp_dir}
+
+  log_info "Stage #4 Benchmarking..."
+  if ! make ; then
+    log_info "Failed to compile benchmark."
+    return 1
+  fi
+  local benchmark_bin=./benchmark
+  for test_file in $( ls ${test_dir}/*.t ) ; do
+    log_info "Running ${test_file}"
+    if ! ${benchmark_bin} < ${test_file}; then
+      log_error "Failed to run ${benchmark_bin} for ${test_file}."
+      return 1
+    fi
+  done
+
   rm -rf ${test_dir}
-  cd ${work_dir} && make clean
+  make clean
 }
 
 main $@
